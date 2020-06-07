@@ -310,3 +310,19 @@
   (let [sql (sql/insert-all table-name arr)
         params (mapcat values arr)]
     (all sql ;params)))
+
+(defn update-param [[key val]]
+  (let [column (snake-case key)
+        value (if (= 'null val)
+                "null"
+                (string/format ":%s" column))]
+    (string/format "%s = %s" column value)))
+
+(defn update
+  "Returns an update sql string from a dictionary of params representing the set portion of the update statement"
+  [table-name params]
+  (let [columns (as-> (pairs params) ?
+                      (map update-param ?)
+                      (string/join ? ", "))]
+    (string "update " (snake-case table-name) " set " columns " where id = :id")))
+

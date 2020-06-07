@@ -61,6 +61,32 @@
 
     (test "insert-all with multiple params"
       (deep= @[@{:id 5 :name "name5" :code "code2"} @{:id 6 :name "name6" :code "code1"}]
-             (db/insert-all :account [{:name "name5" :code "code2"} {:name "name6" :code "code1"}]))))
+             (db/insert-all :account [{:name "name5" :code "code2"} {:name "name6" :code "code1"}])))
+
+    (test "update with dictionary where clause"
+      (= "update account set name = :name where id = :id"
+         (db/update :account {:name "name"})))
+
+    (test "update with string where clause"
+      (= "update account set name = :name where id = :id"
+         (db/update :account {:name "name"})))
+
+    (test "update with null value"
+      (= "update account set name = null where id = :id"
+          (db/update :account {:name 'null})))
+    
+    (test "update with null value and kebab-case params"
+      (= "update account set a_b_c = :a_b_c, name = null where id = :id"
+         (db/update :account {:name 'null :a-b-c ""})))
+
+    # (test "update-all test with same where and set keys"
+    #   (= "update account set name = ? where name = ?"
+    #      (db/update-all :account {:name "old name"} {:name "new name"})))
+
+    # (test "update-all-params test"
+    #   (= ["new name" "old name"]
+    #      (freeze (sql/update-all-params {:name "old name"} {:name "new name"}))))
+    )
+
 
   (db/disconnect))
